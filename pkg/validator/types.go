@@ -25,6 +25,7 @@ import (
 
 	"github.com/fairwindsops/polaris/pkg/config"
 	conf "github.com/fairwindsops/polaris/pkg/config"
+	"github.com/fairwindsops/polaris/pkg/scanner"
 	corev1 "k8s.io/api/core/v1"
 	apiMachineryYAML "k8s.io/apimachinery/pkg/util/yaml"
 )
@@ -48,6 +49,7 @@ type AuditData struct {
 // ClusterSummary contains Polaris results as well as some high-level stats
 type ClusterSummary struct {
 	Results                ResultSummary
+	ScanResults            ScansSummary
 	Version                string
 	Nodes                  int
 	Pods                   int
@@ -65,6 +67,9 @@ type ClusterSummary struct {
 type MessageType string
 
 const (
+	// MessageTypeNoData indicates no validation data
+	MessageTypeNoData MessageType = "nodata"
+
 	// MessageTypeSuccess indicates a validation success
 	MessageTypeSuccess MessageType = "success"
 
@@ -205,6 +210,47 @@ func (rs *ResultSummary) appendResults(toAppend ResultSummary) {
 		}
 		rs.ByCategory[category].appendCounts(*summary)
 	}
+}
+
+// ScansSummary provides a high level overview of container images scan results.
+type ScansSummary struct {
+	NoData    uint
+	Successes uint
+	Warnings  uint
+	Errors    uint
+}
+
+func (summary *ScansSummary) calculateResults(scans []scanner.ImageScanResultSummary) {
+	for _, scan := range scans {
+		switch scan.ScanResult {
+		case "Succeeded":
+			if len(scan.Counters) == 0 {
+				summary.Successes++
+			} else {
+				var isError = false
+				for _, counter := range scan.Counters {
+					if counter.Severity == "CRITICAL" || counter.Severity == "HIGH" {
+						isError = true
+						break
+					}
+				}
+
+				if isError {
+					summary.Errors++
+				} else {
+					summary.Warnings++
+				}
+			}
+		default:
+			summary.NoData++
+		}
+	}
+}
+
+// GetScore returns an overall score in [0, 100] for the ScansSummary
+func (summary *ScansSummary) GetScore() uint {
+	total := (summary.Successes+summary.NoData)*2 + summary.Warnings + (summary.Errors * 2)
+	return uint((float64(summary.Successes+summary.NoData) * 2 / float64(total)) * 100)
 }
 
 // ControllerResult provides a wrapper around a PodResult

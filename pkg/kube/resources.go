@@ -42,6 +42,28 @@ type k8sResource struct {
 	Kind string `yaml:"kind"`
 }
 
+func (rp *ResourceProvider) GetAllImageTags() []string {
+	set := make(map[string]bool)
+	for _, pod := range rp.Pods {
+		for _, ic := range pod.Spec.InitContainers {
+			set[ic.Image] = true
+		}
+		for _, c := range pod.Spec.Containers {
+			set[c.Image] = true
+		}
+	}
+
+	i := 0
+	images := make([]string, len(set))
+
+	for k, _ := range set {
+		images[i] = k
+		i++
+	}
+
+	return images
+}
+
 // CreateResourceProvider returns a new ResourceProvider object to interact with k8s resources
 func CreateResourceProvider(directory string) (*ResourceProvider, error) {
 	if directory != "" {

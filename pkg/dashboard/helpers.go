@@ -33,8 +33,17 @@ func getSuccessWidth(counts validator.CountSummary, fullWidth int) uint {
 	return uint(float64(counts.Successes) / float64(counts.Successes+counts.Warnings+counts.Errors) * float64(fullWidth))
 }
 
-func getGrade(counts validator.CountSummary) string {
+func getClusterGrade(counts validator.CountSummary) string {
 	score := counts.GetScore()
+	return getGrade(score)
+}
+
+func getScansGrade(summary validator.ScansSummary) string {
+	score := summary.GetScore()
+	return getGrade(score)
+}
+
+func getGrade(score uint) string {
 	if score >= 97 {
 		return "A+"
 	} else if score >= 93 {
@@ -64,8 +73,17 @@ func getGrade(counts validator.CountSummary) string {
 	}
 }
 
-func getWeatherIcon(counts validator.CountSummary) string {
+func getClusterWeatherIcon(counts validator.CountSummary) string {
 	score := counts.GetScore()
+	return getWeatherIcon(score)
+}
+
+func getScanWeatherIcon(counts validator.ScansSummary) string {
+	score := counts.GetScore()
+	return getWeatherIcon(score)
+}
+
+func getWeatherIcon(score uint) string {
 	if score >= 90 {
 		return "fa-sun"
 	} else if score >= 80 {
@@ -96,6 +114,8 @@ func getWeatherText(counts validator.CountSummary) string {
 
 func getIcon(rm validator.ResultMessage) string {
 	switch rm.Type {
+	case "nodata":
+		return "fas fa-circle"
 	case "success":
 		return "fas fa-check"
 	case "warning":

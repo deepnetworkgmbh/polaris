@@ -22,6 +22,7 @@ data:
       memoryLimitsMissing: warning
     images:
       tagNotSpecified: error
+      scannerUrl: http://kube-scanner
     healthChecks:
       readinessProbeMissing: warning
       livenessProbeMissing: warning

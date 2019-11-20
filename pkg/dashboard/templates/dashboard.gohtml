@@ -9,9 +9,9 @@
     <div class="cluster-overview">
       <div class="cluster-score">
         <div class="score-details">
-          <div class="weather"><i class="fas {{ getWeatherIcon .AuditData.ClusterSummary.Results.Totals }}"></i></div>
+          <div class="weather"><i class="fas {{ getClusterWeatherIcon .AuditData.ClusterSummary.Results.Totals }}"></i></div>
           <div class="sailing">{{ getWeatherText .AuditData.ClusterSummary.Results.Totals }}</div>
-          <div class="scores"><span>Grade: </span><strong>{{ getGrade .AuditData.ClusterSummary.Results.Totals }}</strong></div>
+          <div class="scores"><span>Grade: </span><strong>{{ getClusterGrade .AuditData.ClusterSummary.Results.Totals }}</strong></div>
           <div class="scores"><span>Score: </span><strong>{{ .AuditData.ClusterSummary.Results.Totals.GetScore }}%</strong></div>
         </div>
       </div>
@@ -25,29 +25,59 @@
           <li class="error"><i class="message-icon fas fa-times"></i> {{ .AuditData.ClusterSummary.Results.Totals.Errors }} checks had errors</li>
         </ul>
       </div>
+      <div class="cluster-overview-footer">
+        <p class="score-description">
+          Score is the percentage of passing checks. Warnings get half the weight of errors.
+        </p>
+        <p class="kubernetes-overview">
+            <span class="kubernetes-stat">
+              <span>Kubernetes Version:</span>
+              <strong>{{.AuditData.ClusterSummary.Version}}</strong>
+            </span>
+            <span class="kubernetes-stat">
+              <span>Nodes:</span>
+              <strong>{{.AuditData.ClusterSummary.Nodes}}</strong>
+            </span>
+            <span class="kubernetes-stat">
+              <span>Pods:</span>
+              <strong>{{.AuditData.ClusterSummary.Pods}}</strong>
+            </span>
+            <span class="kubernetes-stat">
+              <span>Namespaces:</span>
+              <strong>{{.AuditData.ClusterSummary.Namespaces}}</strong>
+            </span>
+        </p>
+      </div>
     </div>
-    <div class="cluster-overview-footer">
-      <p class="score-description">
-        Score is the percentage of passing checks. Warnings get half the weight of errors.
-      </p>
-      <p class="kubernetes-overview">
-          <span class="kubernetes-stat">
-            <span>Kubernetes Version:</span>
-            <strong>{{.AuditData.ClusterSummary.Version}}</strong>
-          </span>
-          <span class="kubernetes-stat">
-            <span>Nodes:</span>
-            <strong>{{.AuditData.ClusterSummary.Nodes}}</strong>
-          </span>
-          <span class="kubernetes-stat">
-            <span>Pods:</span>
-            <strong>{{.AuditData.ClusterSummary.Pods}}</strong>
-          </span>
-          <span class="kubernetes-stat">
-            <span>Namespaces:</span>
-            <strong>{{.AuditData.ClusterSummary.Namespaces}}</strong>
-          </span>
-      </p>
+  </div>
+
+  <div class="card cluster">
+    <h3>
+      <span>Containers Vulnerabilities Scan Results</span>
+    </h3>
+    <div class="cluster-overview">
+      <div class="scans-score">
+        <div class="weather"><i class="fas {{ getScanWeatherIcon .AuditData.ClusterSummary.ScanResults }}"></i></div>
+        <div class="sailing"></div>
+        <div class="scores"><span>Grade: </span><strong>{{ getScansGrade .AuditData.ClusterSummary.ScanResults }}</strong></div>
+        <div class="scores"><span>Score: </span><strong>{{ .AuditData.ClusterSummary.ScanResults.GetScore }}%</strong></div>
+      </div>
+      <div class="graph">
+        <canvas width="275" height="275" id="scanResultsChart"></canvas>
+      </div>
+      <div class="result-messages">
+        <ul class="message-list">
+          <li class="nodata"><i class="message-icon far fa-circle"></i> {{ .AuditData.ClusterSummary.ScanResults.NoData }} no data</li>
+          <li class="success"><i class="message-icon fas fa-check"></i> {{ .AuditData.ClusterSummary.ScanResults.Successes }} checks passed</li>
+          <li class="warning"><i class="message-icon fas fa-exclamation"></i> {{ .AuditData.ClusterSummary.ScanResults.Warnings }} checks had warnings</li>
+          <li class="error"><i class="message-icon fas fa-times"></i> {{ .AuditData.ClusterSummary.ScanResults.Errors }} checks had errors</li>
+        </ul>
+      </div>
+      <div class="scans-overview-footer">
+        <p class="score-description">
+          Score is the percentage of containers with no severe vulnerabilities. Warnings get half the weight of errors. No scan result data counts as passed check.
+        </p>
+      </div>
     </div>
   </div>
 

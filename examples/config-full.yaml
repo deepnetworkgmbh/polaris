@@ -34,6 +34,7 @@ resources:
 images:
   tagNotSpecified: error
   pullPolicyNotAlways: warning
+  scannerUrl: https://localhost:5001
   whitelist:
     error:
       - gcr.io/*

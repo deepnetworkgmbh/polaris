@@ -20,3 +20,5 @@ main
 
 *-packr.go
 dist
+
+/.vscode/launch.json

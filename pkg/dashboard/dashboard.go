@@ -92,9 +92,11 @@ func GetBaseTemplate(name string) (*template.Template, error) {
 	tmpl := template.New(name).Funcs(template.FuncMap{
 		"getWarningWidth":         getWarningWidth,
 		"getSuccessWidth":         getSuccessWidth,
-		"getWeatherIcon":          getWeatherIcon,
+		"getClusterWeatherIcon":   getClusterWeatherIcon,
+		"getScanWeatherIcon":      getScanWeatherIcon,
 		"getWeatherText":          getWeatherText,
-		"getGrade":                getGrade,
+		"getClusterGrade":         getClusterGrade,
+		"getScansGrade":           getScansGrade,
 		"getIcon":                 getIcon,
 		"getCategoryLink":         getCategoryLink,
 		"getCategoryInfo":         getCategoryInfo,
@@ -154,6 +156,7 @@ func getConfigForQuery(base config.Configuration, query url.Values) config.Confi
 func GetRouter(c config.Configuration, auditPath string, port int, basePath string, auditData *validator.AuditData) *mux.Router {
 	router := mux.NewRouter().PathPrefix(basePath).Subrouter()
 	fileServer := http.FileServer(GetAssetBox())
+
 	router.PathPrefix("/static/").Handler(http.StripPrefix(path.Join(basePath, "/static/"), fileServer))
 
 	router.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {

@@ -5,10 +5,14 @@ import (
 
 	conf "github.com/fairwindsops/polaris/pkg/config"
 	"github.com/fairwindsops/polaris/pkg/kube"
+	"github.com/fairwindsops/polaris/pkg/scanner"
 )
 
 // RunAudit runs a full Polaris audit and returns an AuditData object
 func RunAudit(config conf.Configuration, kubeResources *kube.ResourceProvider) (AuditData, error) {
+	kubeScanner := scanner.NewScanner(config.Images.ScannerUrl)
+	// go kubeScanner.Scan(kubeResources.GetAllImageTags())
+
 	nsResults := NamespacedResults{}
 	ValidateControllers(config, kubeResources, &nsResults)
 
@@ -23,6 +27,11 @@ func RunAudit(config conf.Configuration, kubeResources *kube.ResourceProvider) (
 	if displayName == "" {
 		displayName = kubeResources.SourceName
 	}
+
+	scans, _ := kubeScanner.GetAll(kubeResources.GetAllImageTags())
+
+	scanResults := ScansSummary{}
+	scanResults.calculateResults(scans)
 
 	auditData := AuditData{
 		PolarisOutputVersion: PolarisOutputVersion,
@@ -42,6 +51,7 @@ func RunAudit(config conf.Configuration, kubeResources *kube.ResourceProvider) (
 			CronJobs:               len(kubeResources.CronJobs),
 			ReplicationControllers: len(kubeResources.ReplicationControllers),
 			Results:                clusterResults,
+			ScanResults:            scanResults,
 			Score:                  clusterResults.Totals.GetScore(),
 		},
 		NamespacedResults: nsResults,

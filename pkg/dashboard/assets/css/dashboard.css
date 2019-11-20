@@ -35,14 +35,18 @@
 }
 
 .cluster-overview .cluster-score,
+.cluster-overview .scans-score,
 .cluster-overview .result-messages {
   display: inline-block;
   width: 32%;
   vertical-align: top;
 }
-.cluster-overview .cluster-score{
+
+.cluster-overview .cluster-score,
+.cluster-overview .scans-score {
   padding-top: 15px;
 }
+
 .cluster-overview .result-messages {
   padding-top: 70px;
 }
@@ -57,7 +61,7 @@
   line-height: 1.3em;
 }
 
-.cluster-overview .cluster-score .weather {
+.cluster-overview .weather {
     font-size: 80px;
     color: #444;
     margin: 10px 0 5px;
@@ -71,19 +75,19 @@
   margin-bottom: 11px;
 }
 
-.cluster-overview .cluster-score .scores {
+.cluster-overview .scores {
   font-size: 16px;
   margin-top: 15px;
 }
 
-.cluster-overview .cluster-score .scores span {
+.cluster-overview .scores span {
   width: 70px;
   display: inline-block;
   color: #555;
   font-weight: 200;
 }
 
-.cluster-overview .cluster-score .scores strong {
+.cluster-overview .scores strong {
   font-size: 24px;
 }
 
@@ -96,6 +100,13 @@
   line-height: 35px;
 }
 
+.cluster-overview .scans-score .beetle {
+    font-size: 80px;
+    color: #444;
+    margin: 10px 0 5px;
+}
+
+.scans-overview-footer,
 .cluster-overview-footer {
   position: absolute;
   bottom: 0px;
@@ -103,10 +114,14 @@
   left: 40px;
 }
 
+.scans-overview-footer p,
 .cluster-overview-footer p {
   display: inline-block;
   font-size: 11px;
   color: #777;
+}
+
+.cluster-overview-footer p {
   width: 48%;
 }
 
@@ -251,6 +266,10 @@ ul.message-list li i.message-icon {
   font-weight: bold;
   position: relative;
   bottom: -3px;
+}
+
+.result-messages .nodata i.message-icon {
+  color: #ACB7BF;
 }
 
 .result-messages .success i.message-icon {

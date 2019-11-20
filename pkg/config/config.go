@@ -83,6 +83,7 @@ type Images struct {
 	PullPolicyNotAlways Severity          `json:"pullPolicyNotAlways"`
 	Whitelist           ErrorWarningLists `json:"whitelist"`
 	Blacklist           ErrorWarningLists `json:"blacklist"`
+	ScannerUrl          string            `json:"scannerUrl"`
 }
 
 // ErrorWarningLists provides lists of patterns to match or avoid in image tags.
