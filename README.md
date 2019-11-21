@@ -2,19 +2,9 @@
   <img src="/pkg/dashboard/assets/images/polaris-logo.png" alt="Polaris Logo" />
   <br>
 
-  [![Version][version-image]][version-link] [![CircleCI][circleci-image]][circleci-link] [![Go Report Card][goreport-image]][goreport-link]
 </div>
 
-[version-image]: https://img.shields.io/static/v1.svg?label=Version&message=0.5.2&color=239922
-[version-link]: https://github.com/FairwindsOps/polaris
-
-[goreport-image]: https://goreportcard.com/badge/github.com/FairwindsOps/polaris
-[goreport-link]: https://goreportcard.com/report/github.com/FairwindsOps/polaris
-
-[circleci-image]: https://circleci.com/gh/FairwindsOps/polaris.svg?style=svg
-[circleci-link]: https://circleci.com/gh/FairwindsOps/polaris.svg
-
-Fairwinds' Polaris keeps your clusters sailing smoothly. It runs a variety of checks to ensure that
+This is an extension by Deep Network GmbH on Fairwinds' Polaris. Polaris keeps your clusters sailing smoothly. It runs a variety of checks to ensure that
 Kubernetes pods and controllers are configured using best practices, helping you avoid
 problems in the future. Polaris can be run in a few different modes:
 
@@ -23,12 +13,10 @@ Polaris can be run in three different modes:
 * As a [validating webhook](#webhook), so you can automatically reject workloads that don't adhere to your organization's policies.
 * As a [command-line tool](#cli), so you can test local YAML files, e.g. as part of a CI/CD process.
 
-**Want to learn more?** Fairwinds holds [office hours on Zoom](https://zoom.us/j/242508205) the first Friday of every month, at 12pm Eastern. You can also reach out via email at `opensource@fairwinds.com`
-
 # Dashboard Quickstart
 
 ```bash
-kubectl apply -f https://github.com/FairwindsOps/polaris/releases/latest/download/dashboard.yaml
+kubectl apply -f https://raw.githubusercontent.com/deepnetworkgmbh/polaris/master/deploy/dashboard.yaml
 kubectl port-forward --namespace polaris svc/polaris-dashboard 8080:80
 ```
 With the port forwarding in place, you can open http://localhost:8080 in your browser to view the dashboard.
