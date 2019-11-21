@@ -181,6 +181,9 @@ type CountSummary struct {
 // GetScore returns an overall score in [0, 100] for the CountSummary
 func (cs *CountSummary) GetScore() uint {
 	total := (cs.Successes * 2) + cs.Warnings + (cs.Errors * 2)
+	if total == 0 {
+		return 100
+	}
 	return uint((float64(cs.Successes*2) / float64(total)) * 100)
 }
 
@@ -250,6 +253,9 @@ func (summary *ScansSummary) calculateResults(scans []scanner.ImageScanResultSum
 // GetScore returns an overall score in [0, 100] for the ScansSummary
 func (summary *ScansSummary) GetScore() uint {
 	total := (summary.Successes+summary.NoData)*2 + summary.Warnings + (summary.Errors * 2)
+	if total == 0 {
+		return 100
+	}
 	return uint((float64(summary.Successes+summary.NoData) * 2 / float64(total)) * 100)
 }
 
