@@ -5,9 +5,6 @@
         <img class="logo" src="static/images/polaris-logo.png" alt="Polaris" />
       </a>
       <div class="navbar-right">
-        <a href="https://fairwinds.com?source=polaris" target="_blank">
-          <img class="fw-logo" src="static/images/oss-logo.png" alt="Fairwinds" />
-        </a>
       </div>
       {{ if and (not .Config.DisallowExemptions) (gt (len .Config.Exemptions) 0) }}
       <div class="exemption-alert">
