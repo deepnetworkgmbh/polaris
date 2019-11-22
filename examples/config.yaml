@@ -6,6 +6,7 @@ resources:
 images:
   tagNotSpecified: error
   pullPolicyNotAlways: ignore
+  vulnerabilityScanFailed: warning
   scannerUrl: https://localhost:5001
 healthChecks:
   readinessProbeMissing: warning

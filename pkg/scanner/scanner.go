@@ -53,6 +53,44 @@ type VulnerabilityCounter struct {
 	Count    int    `json:"count"`
 }
 
+func (s *ImageScanResultSummary) GetSeverity() string {
+	switch s.ScanResult {
+	case "Succeeded":
+		if len(s.Counters) == 0 {
+			return "Success"
+		} else {
+			for _, counter := range s.Counters {
+				if counter.Severity == "CRITICAL" || counter.Severity == "HIGH" {
+					return "Error"
+				}
+			}
+
+			return "Warning"
+		}
+	default:
+		return "NoData"
+	}
+}
+
+func (s *ImageScanResultSummary) GetScansMessage() string {
+	switch s.ScanResult {
+	case "Succeeded":
+		if len(s.Counters) == 0 {
+			return "The image passed vulnerabilities check"
+		} else {
+			message := ""
+
+			for _, counter := range s.Counters {
+				message += fmt.Sprintf("%v %v, ", counter.Count, counter.Severity)
+			}
+
+			return fmt.Sprintf("Image has %v known vulnerabilities", message[:len(message)-2])
+		}
+	default:
+		return "No vulnerabilities check data"
+	}
+}
+
 // NewScanner returns a new scanner instance.
 func NewScanner(url string) *Scanner {
 	return &Scanner{ScannerURL: url}
@@ -74,7 +112,6 @@ func (s *Scanner) Scan(images []string) {
 	var result map[string]interface{}
 
 	json.NewDecoder(resp.Body).Decode(&result)
-	logrus.Print(result)
 }
 
 // Get returns detailed single image scan result
@@ -90,7 +127,6 @@ func (s *Scanner) Get(image string) (scanResult ImageScanResult, err error) {
 	defer resp.Body.Close()
 
 	json.NewDecoder(resp.Body).Decode(&scanResult)
-	logrus.Print(scanResult)
 
 	return
 }
@@ -113,7 +149,5 @@ func (s *Scanner) GetAll(images []string) (scanResults []ImageScanResultSummary,
 	defer resp.Body.Close()
 
 	json.NewDecoder(resp.Body).Decode(&scanResults)
-	logrus.Print(scanResults)
-
 	return
 }

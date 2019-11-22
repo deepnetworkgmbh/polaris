@@ -23,10 +23,10 @@ import (
 )
 
 // ValidateController validates a single controller, returns a ControllerResult.
-func ValidateController(conf conf.Configuration, controller controller.Interface) ControllerResult {
+func ValidateController(conf conf.Configuration, controller controller.Interface, scans *ScansSummary) ControllerResult {
 	controllerType := controller.GetType()
 	pod := controller.GetPodSpec()
-	podResult := ValidatePod(conf, pod, controller.GetName(), controllerType)
+	podResult := ValidatePod(conf, pod, controller.GetName(), controllerType, scans)
 	return ControllerResult{
 		Type:      controllerType.String(),
 		Name:      controller.GetName(),
@@ -36,7 +36,7 @@ func ValidateController(conf conf.Configuration, controller controller.Interface
 
 // ValidateControllers validates that each deployment conforms to the Polaris config,
 // builds a list of ResourceResults organized by namespace.
-func ValidateControllers(config conf.Configuration, kubeResources *kube.ResourceProvider, nsResults *NamespacedResults) {
+func ValidateControllers(config conf.Configuration, kubeResources *kube.ResourceProvider, nsResults *NamespacedResults, scans *ScansSummary) {
 	var controllersToAudit []controller.Interface
 	for _, supportedControllers := range config.ControllersToScan {
 		loadedControllers, _ := controllers.LoadControllersByType(supportedControllers, kubeResources)
@@ -44,7 +44,7 @@ func ValidateControllers(config conf.Configuration, kubeResources *kube.Resource
 	}
 
 	for _, controller := range controllersToAudit {
-		controllerResult := ValidateController(config, controller)
+		controllerResult := ValidateController(config, controller, scans)
 		nsResult := nsResults.getNamespaceResult(controller.GetNamespace())
 		nsResult.Summary.appendResults(*controllerResult.PodResult.Summary)
 		if err := nsResult.AddResult(controller.GetType(), controllerResult); err != nil {

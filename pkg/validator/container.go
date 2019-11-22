@@ -16,6 +16,7 @@ package validator
 
 import (
 	"fmt"
+	"github.com/fairwindsops/polaris/pkg/scanner"
 	"strings"
 
 	"github.com/fairwindsops/polaris/pkg/config"
@@ -30,6 +31,7 @@ type ContainerValidation struct {
 	Container       *corev1.Container
 	IsInitContainer bool
 	parentPodSpec   corev1.PodSpec
+	ScanSummary     scanner.ImageScanResultSummary
 }
 
 // ValidateContainer validates that each pod conforms to the Polaris config, returns a ResourceResult.
@@ -38,7 +40,7 @@ type ContainerValidation struct {
 //       relevant podSpec in order to check certain aspects of a containerSpec.
 //       Perhaps there is a more ideal solution instead of attaching a parent
 //       podSpec to every container Validation struct...
-func ValidateContainer(container *corev1.Container, parentPodResult *PodResult, conf *config.Configuration, controllerName string, controllerType config.SupportedController, isInit bool) ContainerResult {
+func ValidateContainer(container *corev1.Container, parentPodResult *PodResult, conf *config.Configuration, controllerName string, controllerType config.SupportedController, isInit bool, scans *ScansSummary) ContainerResult {
 	cv := ContainerValidation{
 		Container:          container,
 		ResourceValidation: &ResourceValidation{},
@@ -61,14 +63,16 @@ func ValidateContainer(container *corev1.Container, parentPodResult *PodResult, 
 	if !isInit && controllerType != config.Jobs && controllerType != config.CronJobs {
 		cv.validateHealthChecks(conf, controllerName)
 	}
-	cv.validateImage(conf, controllerName)
+	cv.validateImage(conf, controllerName, scans)
 	cv.validateNetworking(conf, controllerName)
 	cv.validateSecurity(conf, controllerName)
 
 	cRes := ContainerResult{
 		Name:     container.Name,
+		Image:    container.Image,
 		Messages: cv.messages(),
 		Summary:  cv.summary(),
+		ScanSummary: cv.ScanSummary,
 	}
 
 	return cRes
@@ -178,7 +182,7 @@ func (cv *ContainerValidation) validateHealthChecks(conf *config.Configuration, 
 	}
 }
 
-func (cv *ContainerValidation) validateImage(conf *config.Configuration, controllerName string) {
+func (cv *ContainerValidation) validateImage(conf *config.Configuration, controllerName string, scans *ScansSummary) {
 	category := messages.CategoryImages
 
 	name := "PullPolicyNotAlways"
@@ -199,6 +203,25 @@ func (cv *ContainerValidation) validateImage(conf *config.Configuration, control
 			cv.addFailure(messages.ImageTagFailure, conf.Images.TagNotSpecified, category, id)
 		} else {
 			cv.addSuccess(messages.ImageTagSuccess, category, id)
+		}
+	}
+
+	if scans == nil {
+		return
+	}
+
+	id := config.GetIDFromField(conf.Images, "VulnerabilityScanFailed")
+	if result, exist := scans.Scans[cv.Container.Image]; exist {
+		cv.ScanSummary = result
+		switch result.GetSeverity() {
+		case "Error":
+			cv.addError(result.GetScansMessage(), category, id)
+		case "Warning":
+			cv.addWarning(result.GetScansMessage(), category, id)
+		case "NoData":
+			cv.addSuccess(messages.ImageScanNoData, category, id)
+		default:
+			cv.addSuccess(messages.ImageScanSuccess, category, id)
 		}
 	}
 }

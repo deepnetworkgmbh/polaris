@@ -27,10 +27,10 @@ $(function () {
       labels: [ "No Data", "Passing", "Warnings", "Errors"],
       datasets: [{
         data: [
-          polarisAuditData.ClusterSummary.ScanResults.NoData,
-          polarisAuditData.ClusterSummary.ScanResults.Successes,
-          polarisAuditData.ClusterSummary.ScanResults.Warnings,
-          polarisAuditData.ClusterSummary.ScanResults.Errors,
+          polarisAuditData.ScanResults.NoData,
+          polarisAuditData.ScanResults.Successes,
+          polarisAuditData.ScanResults.Warnings,
+          polarisAuditData.ScanResults.Errors,
         ],
         backgroundColor: [ '#ACB7BF', '#8BD2DC', '#f26c21', '#a11f4c'],
       }]

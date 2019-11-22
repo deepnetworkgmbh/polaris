@@ -13,12 +13,17 @@ func RunAudit(config conf.Configuration, kubeResources *kube.ResourceProvider) (
 	kubeScanner := scanner.NewScanner(config.Images.ScannerUrl)
 	// go kubeScanner.Scan(kubeResources.GetAllImageTags())
 
+	scans, _ := kubeScanner.GetAll(kubeResources.GetAllImageTags())
+
+	scanResults := ScansSummary{}
+	scanResults.calculateResults(scans)
+
 	nsResults := NamespacedResults{}
-	ValidateControllers(config, kubeResources, &nsResults)
+	ValidateControllers(config, kubeResources, &nsResults, &scanResults)
 
 	clusterResults := ResultSummary{}
 
-	// Aggregate all summary counts to get a clusterwide count.
+	// Aggregate all summary counts to get a clusterwide count
 	for _, result := range nsResults.GetAllControllerResults() {
 		clusterResults.appendResults(*result.PodResult.Summary)
 	}
@@ -27,11 +32,6 @@ func RunAudit(config conf.Configuration, kubeResources *kube.ResourceProvider) (
 	if displayName == "" {
 		displayName = kubeResources.SourceName
 	}
-
-	scans, _ := kubeScanner.GetAll(kubeResources.GetAllImageTags())
-
-	scanResults := ScansSummary{}
-	scanResults.calculateResults(scans)
 
 	auditData := AuditData{
 		PolarisOutputVersion: PolarisOutputVersion,
@@ -51,10 +51,10 @@ func RunAudit(config conf.Configuration, kubeResources *kube.ResourceProvider) (
 			CronJobs:               len(kubeResources.CronJobs),
 			ReplicationControllers: len(kubeResources.ReplicationControllers),
 			Results:                clusterResults,
-			ScanResults:            scanResults,
 			Score:                  clusterResults.Totals.GetScore(),
 		},
 		NamespacedResults: nsResults,
+		ScanResults:       scanResults,
 	}
 	return auditData, nil
 }

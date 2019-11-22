@@ -16,9 +16,11 @@ package dashboard
 
 import (
 	"fmt"
-	"strings"
-
 	"github.com/fairwindsops/polaris/pkg/validator"
+	"github.com/fairwindsops/polaris/pkg/validator/messages"
+
+	"net/url"
+	"strings"
 )
 
 func getAllControllerResults(nr validator.NamespaceResult) []validator.ControllerResult {
@@ -127,6 +129,15 @@ func getIcon(rm validator.ResultMessage) string {
 
 func getCategoryLink(category string) string {
 	return strings.Replace(strings.ToLower(category), " ", "-", -1)
+}
+
+func getHelpLink(category string, cr validator.ContainerResult) string {
+	if category == messages.CategoryImages {
+		return fmt.Sprintf("image/%v", url.PathEscape(cr.Image));
+	} else {
+		categoryFmt := strings.Replace(strings.ToLower(category), " ", "-", -1)
+		return fmt.Sprintf("details/%v", categoryFmt);
+	}
 }
 
 func getCategoryInfo(category string) string {

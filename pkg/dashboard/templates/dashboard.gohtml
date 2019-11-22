@@ -51,36 +51,6 @@
     </div>
   </div>
 
-  <div class="card cluster">
-    <h3>
-      <span>Containers Vulnerabilities Scan Results</span>
-    </h3>
-    <div class="cluster-overview">
-      <div class="scans-score">
-        <div class="weather"><i class="fas {{ getScanWeatherIcon .AuditData.ClusterSummary.ScanResults }}"></i></div>
-        <div class="sailing"></div>
-        <div class="scores"><span>Grade: </span><strong>{{ getScansGrade .AuditData.ClusterSummary.ScanResults }}</strong></div>
-        <div class="scores"><span>Score: </span><strong>{{ .AuditData.ClusterSummary.ScanResults.GetScore }}%</strong></div>
-      </div>
-      <div class="graph">
-        <canvas width="275" height="275" id="scanResultsChart"></canvas>
-      </div>
-      <div class="result-messages">
-        <ul class="message-list">
-          <li class="nodata"><i class="message-icon far fa-circle"></i> {{ .AuditData.ClusterSummary.ScanResults.NoData }} no data</li>
-          <li class="success"><i class="message-icon fas fa-check"></i> {{ .AuditData.ClusterSummary.ScanResults.Successes }} checks passed</li>
-          <li class="warning"><i class="message-icon fas fa-exclamation"></i> {{ .AuditData.ClusterSummary.ScanResults.Warnings }} checks had warnings</li>
-          <li class="error"><i class="message-icon fas fa-times"></i> {{ .AuditData.ClusterSummary.ScanResults.Errors }} checks had errors</li>
-        </ul>
-      </div>
-      <div class="scans-overview-footer">
-        <p class="score-description">
-          Score is the percentage of containers with no severe vulnerabilities. Warnings get half the weight of errors. No scan result data counts as passed check.
-        </p>
-      </div>
-    </div>
-  </div>
-
   <div class="card category">
     <h3>Results by Category</h3>
     <div class="expandable-table">
@@ -137,7 +107,7 @@
                   {{ end }}
                 </ul>
               </div>
-              {{ range .PodResult.ContainerResults}}
+              {{ range $container := .PodResult.ContainerResults}}
                 <div class="result-messages expandable-content">
                   <h4>Container: {{ .Name }}</h4>
                   <ul class="message-list">
@@ -145,7 +115,7 @@
                       <li class="{{ .Type }}">
                         <i class="message-icon {{ getIcon $message }}"></i>
                         <span class="message">{{ .Message }}</span>
-                        <a class="more-info" href="details/{{ getCategoryLink .Category }}">
+                        <a class="more-info" href="{{ getHelpLink .Category $container }}">
                           <i class="far fa-question-circle"></i>
                         </a>
                       </li>

@@ -53,6 +53,10 @@ const (
 	ImagePullPolicyFailure = "Image pull policy should be \"Always\""
 	// ImagePullPolicySuccess message
 	ImagePullPolicySuccess = "Image pull policy is \"Always\""
+	// ImageScanNoData message
+	ImageScanNoData = "No vulnerabilities scan data"
+	// ImageScanSuccess message
+	ImageScanSuccess = "The container Image passed vulnerabilities scan"
 	// HostPortFailure message
 	HostPortFailure = "Host port should not be configured"
 	// HostPortSuccess message

@@ -34,13 +34,14 @@ resources:
 images:
   tagNotSpecified: error
   pullPolicyNotAlways: warning
-  scannerUrl: https://localhost:5001
   whitelist:
     error:
       - gcr.io/*
   blacklist:
     warning:
       - docker.io/*
+  vulnerabilityScanFailed: warning
+  scannerUrl: https://localhost:5001
 healthChecks:
   readinessProbeMissing: warning
   livenessProbeMissing: warning

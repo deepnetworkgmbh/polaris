@@ -99,6 +99,7 @@ func GetBaseTemplate(name string) (*template.Template, error) {
 		"getScansGrade":           getScansGrade,
 		"getIcon":                 getIcon,
 		"getCategoryLink":         getCategoryLink,
+		"getHelpLink":             getHelpLink,
 		"getCategoryInfo":         getCategoryInfo,
 		"getAllControllerResults": getAllControllerResults,
 	})

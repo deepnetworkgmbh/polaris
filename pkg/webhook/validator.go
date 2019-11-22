@@ -94,7 +94,7 @@ func (v *Validator) Handle(ctx context.Context, req types.Request) types.Respons
 	if req.AdmissionRequest.Kind.Kind == "Pod" {
 		pod := corev1.Pod{}
 		err = v.decoder.Decode(req, &pod)
-		podResult = validator.ValidatePod(v.Config, &pod.Spec, "", config.Unsupported)
+		podResult = validator.ValidatePod(v.Config, &pod.Spec, "", config.Unsupported, nil)
 	} else {
 		var controller controllers.Interface
 		if yes := v.Config.CheckIfKindIsConfiguredForValidation(req.AdmissionRequest.Kind.Kind); !yes {
@@ -138,7 +138,7 @@ func (v *Validator) Handle(ctx context.Context, req types.Request) types.Respons
 			err = v.decoder.Decode(req, &replicationController)
 			controller = controllers.NewReplicationControllerController(replicationController)
 		}
-		controllerResult := validator.ValidateController(v.Config, controller)
+		controllerResult := validator.ValidateController(v.Config, controller, nil)
 		podResult = controllerResult.PodResult
 	}
 

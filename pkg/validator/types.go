@@ -44,12 +44,12 @@ type AuditData struct {
 	DisplayName          string
 	ClusterSummary       ClusterSummary
 	NamespacedResults    NamespacedResults
+	ScanResults          ScansSummary
 }
 
 // ClusterSummary contains Polaris results as well as some high-level stats
 type ClusterSummary struct {
 	Results                ResultSummary
-	ScanResults            ScansSummary
 	Version                string
 	Nodes                  int
 	Pods                   int
@@ -215,8 +215,12 @@ func (rs *ResultSummary) appendResults(toAppend ResultSummary) {
 	}
 }
 
+// ScansMap provides a map from image name to a scan result
+type ScansMap map[string]scanner.ImageScanResultSummary
+
 // ScansSummary provides a high level overview of container images scan results.
 type ScansSummary struct {
+	Scans     ScansMap
 	NoData    uint
 	Successes uint
 	Warnings  uint
@@ -224,27 +228,19 @@ type ScansSummary struct {
 }
 
 func (summary *ScansSummary) calculateResults(scans []scanner.ImageScanResultSummary) {
-	for _, scan := range scans {
-		switch scan.ScanResult {
-		case "Succeeded":
-			if len(scan.Counters) == 0 {
-				summary.Successes++
-			} else {
-				var isError = false
-				for _, counter := range scan.Counters {
-					if counter.Severity == "CRITICAL" || counter.Severity == "HIGH" {
-						isError = true
-						break
-					}
-				}
+	summary.Scans = ScansMap{}
 
-				if isError {
-					summary.Errors++
-				} else {
-					summary.Warnings++
-				}
-			}
-		default:
+	for _, scan := range scans {
+		summary.Scans[scan.Image] = scan
+
+		switch scan.GetSeverity() {
+		case "Success":
+			summary.Successes++
+		case "Error":
+			summary.Errors++
+		case "Warning":
+			summary.Warnings++
+		case "NoData":
 			summary.NoData++
 		}
 	}
@@ -268,9 +264,11 @@ type ControllerResult struct {
 
 // ContainerResult provides a list of validation messages for each container.
 type ContainerResult struct {
-	Name     string
-	Messages []*ResultMessage
-	Summary  *ResultSummary
+	Name         string
+	Image        string
+	Messages     []*ResultMessage
+	Summary      *ResultSummary
+	ScanSummary  scanner.ImageScanResultSummary
 }
 
 // PodResult provides a list of validation messages for each pod.
