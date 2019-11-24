@@ -142,7 +142,7 @@ spec:
   - name: dashboard
     port: 80
     protocol: TCP
-    targetPort: 8080
+    targetPort: main-http
   selector:
     app: polaris
     component: dashboard
@@ -185,7 +185,8 @@ spec:
         imagePullPolicy: 'Always'
         name: dashboard
         ports:
-        - containerPort: 8080
+        - name: main-http
+          containerPort: 8080
         livenessProbe:
           httpGet:
             path: /health
@@ -221,24 +222,4 @@ spec:
       serviceAccountName: polaris-dashboard
       nodeSelector:
       tolerations:
----
-# Source: polaris/templates/audit.job.yaml
-
----
-# Source: polaris/templates/audit.rbac.yaml
-
----
-# Source: polaris/templates/ingress.yaml
-
----
-# Source: polaris/templates/webhook.deployment.yaml
-
----
-# Source: polaris/templates/webhook.rbac.yaml
-
----
-# Source: polaris/templates/webhook.secret.yaml
-
----
-# Source: polaris/templates/webhook.service.yaml
 
