@@ -52,7 +52,7 @@ func TestValidateController(t *testing.T) {
 		{ID: "hostPIDSet", Message: "Host PID is not configured", Type: "success", Category: "Security"},
 	}
 
-	actualResult := ValidateController(c, deployment)
+	actualResult := ValidateController(c, deployment, nil)
 
 	assert.Equal(t, "Deployments", actualResult.Type)
 	assert.Equal(t, 1, len(actualResult.PodResult.ContainerResults), "should be equal")
@@ -95,7 +95,7 @@ func TestSkipHealthChecks(t *testing.T) {
 		{ID: "readinessProbeMissing", Message: "Readiness probe should be configured", Type: "error", Category: "Health Checks"},
 		{ID: "livenessProbeMissing", Message: "Liveness probe should be configured", Type: "warning", Category: "Health Checks"},
 	}
-	actualResult := ValidateController(c, deployment)
+	actualResult := ValidateController(c, deployment, nil)
 	assert.Equal(t, "Deployments", actualResult.Type)
 	assert.Equal(t, 2, len(actualResult.PodResult.ContainerResults), "should be equal")
 	assert.EqualValues(t, &expectedSum, actualResult.PodResult.Summary)
@@ -112,7 +112,7 @@ func TestSkipHealthChecks(t *testing.T) {
 		ByCategory: make(map[string]*CountSummary),
 	}
 	expectedMessages = []*ResultMessage{}
-	actualResult = ValidateController(c, job)
+	actualResult = ValidateController(c, job, nil)
 	assert.Equal(t, "Jobs", actualResult.Type)
 	assert.Equal(t, 1, len(actualResult.PodResult.ContainerResults), "should be equal")
 	assert.EqualValues(t, &expectedSum, actualResult.PodResult.Summary)
@@ -128,7 +128,7 @@ func TestSkipHealthChecks(t *testing.T) {
 		ByCategory: make(map[string]*CountSummary),
 	}
 	expectedMessages = []*ResultMessage{}
-	actualResult = ValidateController(c, cronjob)
+	actualResult = ValidateController(c, cronjob, nil)
 	assert.Equal(t, "CronJobs", actualResult.Type)
 	assert.Equal(t, 1, len(actualResult.PodResult.ContainerResults), "should be equal")
 	assert.EqualValues(t, &expectedSum, actualResult.PodResult.Summary)

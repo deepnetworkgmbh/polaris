@@ -41,7 +41,7 @@ images:
     warning:
       - docker.io/*
   vulnerabilityScanFailed: warning
-  scannerUrl: https://localhost:5001
+  scannerUrl: http://localhost:5001
 healthChecks:
   readinessProbeMissing: warning
   livenessProbeMissing: warning

@@ -63,7 +63,7 @@ func TestValidatePod(t *testing.T) {
 		{ID: "hostNetworkSet", Message: "Host network is not configured", Type: "success", Category: "Networking"},
 	}
 
-	actualPodResult := ValidatePod(c, &pod.Spec, "", conf.Deployments)
+	actualPodResult := ValidatePod(c, &pod.Spec, "", conf.Deployments, nil)
 
 	assert.Equal(t, 1, len(actualPodResult.ContainerResults), "should be equal")
 	assert.EqualValues(t, &expectedSum, actualPodResult.Summary)
@@ -111,7 +111,7 @@ func TestInvalidIPCPod(t *testing.T) {
 		{ID: "hostNetworkSet", Message: "Host network is not configured", Type: "success", Category: "Networking"},
 	}
 
-	actualPodResult := ValidatePod(c, &pod.Spec, "", conf.Deployments)
+	actualPodResult := ValidatePod(c, &pod.Spec, "", conf.Deployments, nil)
 
 	assert.Equal(t, 1, len(actualPodResult.ContainerResults), "should be equal")
 	assert.EqualValues(t, &expectedSum, actualPodResult.Summary)
@@ -161,7 +161,7 @@ func TestInvalidNeworkPod(t *testing.T) {
 		{ID: "hostPIDSet", Message: "Host PID is not configured", Type: "success", Category: "Security"},
 	}
 
-	actualPodResult := ValidatePod(c, &pod.Spec, "", conf.Deployments)
+	actualPodResult := ValidatePod(c, &pod.Spec, "", conf.Deployments, nil)
 
 	assert.Equal(t, 1, len(actualPodResult.ContainerResults), "should be equal")
 	assert.EqualValues(t, &expectedSum, actualPodResult.Summary)
@@ -210,7 +210,7 @@ func TestInvalidPIDPod(t *testing.T) {
 		{ID: "hostNetworkSet", Message: "Host network is not configured", Type: "success", Category: "Networking"},
 	}
 
-	actualPodResult := ValidatePod(c, &pod.Spec, "", conf.Deployments)
+	actualPodResult := ValidatePod(c, &pod.Spec, "", conf.Deployments, nil)
 
 	assert.Equal(t, 1, len(actualPodResult.ContainerResults), "should be equal")
 	assert.EqualValues(t, &expectedSum, actualPodResult.Summary)
@@ -263,7 +263,7 @@ func TestExemption(t *testing.T) {
 		{ID: "hostNetworkSet", Message: "Host network is not configured", Type: "success", Category: "Networking"},
 	}
 
-	actualPodResult := ValidatePod(c, &pod.Spec, "foo", conf.Deployments)
+	actualPodResult := ValidatePod(c, &pod.Spec, "foo", conf.Deployments, nil)
 
 	assert.Equal(t, 1, len(actualPodResult.ContainerResults), "should be equal")
 	assert.EqualValues(t, &expectedSum, actualPodResult.Summary)

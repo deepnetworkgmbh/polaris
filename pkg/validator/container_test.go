@@ -524,7 +524,7 @@ func TestValidateImage(t *testing.T) {
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.cv = resetCV(tt.cv)
-			tt.cv.validateImage(&conf.Configuration{Images: tt.image}, "")
+			tt.cv.validateImage(&conf.Configuration{Images: tt.image}, "", nil)
 			assert.Len(t, tt.cv.Errors, len(tt.expected))
 			assert.ElementsMatch(t, tt.cv.Errors, tt.expected)
 		})
