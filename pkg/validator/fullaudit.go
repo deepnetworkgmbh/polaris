@@ -11,7 +11,7 @@ import (
 // RunAudit runs a full Polaris audit and returns an AuditData object
 func RunAudit(config conf.Configuration, kubeResources *kube.ResourceProvider) (AuditData, error) {
 	kubeScanner := scanner.NewScanner(config.Images.ScannerUrl)
-	// go kubeScanner.Scan(kubeResources.GetAllImageTags())
+	go kubeScanner.Scan(kubeResources.GetAllImageTags())
 
 	scans, _ := kubeScanner.GetAll(kubeResources.GetAllImageTags())
 

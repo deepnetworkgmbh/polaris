@@ -37,6 +37,7 @@ type Configuration struct {
 	Networking         Networking            `json:"networking"`
 	Security           Security              `json:"security"`
 	ControllersToScan  []SupportedController `json:"controllers_to_scan"`
+	NamespacesToScan   []string              `json:"namespaces_to_scan"`
 	Exemptions         []Exemption           `json:"exemptions"`
 	DisallowExemptions bool                  `json:"disallowExemptions"`
 }

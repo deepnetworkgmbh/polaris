@@ -210,6 +210,21 @@ func CreateResourceProviderFromAPI(kube kubernetes.Interface, clusterName string
 	return &api, nil
 }
 
+func (rp *ResourceProvider) FilterByNamespace(namespaces ...string) {
+	if namespaces == nil {
+		return
+	}
+
+	filterNamespaces(rp, namespaces)
+	filterDeployments(rp, namespaces)
+	filterStatefulSets(rp, namespaces)
+	filterDaemonSets(rp, namespaces)
+	filterJobs(rp, namespaces)
+	filterCronJobs(rp, namespaces)
+	filterReplicationControllers(rp, namespaces)
+	filterPods(rp, namespaces)
+}
+
 func addResourceFromString(contents string, resources *ResourceProvider) error {
 	contentBytes := []byte(contents)
 	decoder := k8sYaml.NewYAMLOrJSONDecoder(bytes.NewReader(contentBytes), 1000)

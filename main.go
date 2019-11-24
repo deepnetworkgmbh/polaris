@@ -219,6 +219,8 @@ func runAndReportAudit(c conf.Configuration, auditPath string, outputFile string
 		logrus.Errorf("Error fetching Kubernetes resources %v", err)
 		os.Exit(1)
 	}
+
+	k.FilterByNamespace(c.NamespacesToScan...)
 	auditData, err := validator.RunAudit(c, k)
 
 	if err != nil {

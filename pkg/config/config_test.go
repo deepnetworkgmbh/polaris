@@ -66,6 +66,9 @@ controllers_to_scan:
   - CronJobs
   - DaemonSets
   - ReplicationControllers
+namespaces_to_scan: 
+  - default
+  - test
 `
 
 var resourceConfJSON1 = `{
@@ -111,7 +114,8 @@ var resourceConfJSON1 = `{
 			}
 		}
 	},
-	"controllers_to_scan": ["Deployments", "StatefulSets", "Jobs", "CronJobs", "DaemonSets", "ReplicationControllers"]
+	"controllers_to_scan": ["Deployments", "StatefulSets", "Jobs", "CronJobs", "DaemonSets", "ReplicationControllers"],
+	"namespaces_to_scan": ["default", "test"]
 }`
 
 func TestParseError(t *testing.T) {
@@ -192,4 +196,5 @@ func testParsedConfig(t *testing.T, config *Configuration) {
 
 	controllersToScan := config.ControllersToScan
 	assert.ElementsMatch(t, []SupportedController{Deployments, StatefulSets, Jobs, CronJobs, DaemonSets, ReplicationControllers}, controllersToScan)
+	assert.ElementsMatch(t, []string{"default", "test"}, config.NamespacesToScan)
 }

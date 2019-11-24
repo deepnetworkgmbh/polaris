@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/sirupsen/logrus"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 )
@@ -109,9 +110,12 @@ func (s *Scanner) Scan(images []string) {
 
 	defer resp.Body.Close()
 
-	var result map[string]interface{}
-
-	json.NewDecoder(resp.Body).Decode(&result)
+	bodyBytes, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		logrus.Fatal(err)
+	}
+	bodyString := string(bodyBytes)
+	logrus.Info(bodyString)
 }
 
 // Get returns detailed single image scan result

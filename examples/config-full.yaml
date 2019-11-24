@@ -65,6 +65,9 @@ security:
     warning:
       ifAnyAddedBeyond:
         - NONE
+namespaces_to_scan:
+  - default
+  - test
 exemptions:
   - controllerNames:
     - dns-controller
