@@ -153,8 +153,9 @@ func getCategoryInfo(category string) string {
 		return fmt.Sprintf(`
 			Images are the backbone of any Kubernetes cluster, containing the applications
 			that run in each container. Polaris validates that images are configured with
-			specific tags instead of just pulling the latest image on each run. This is
-			important for the stability and security of your workloads.
+			specific tags instead of just pulling the latest image on each run. Also, polaris 
+			checks if used image version has known CVEs (Common Vulnerabilities and Exposures).
+			This is important for the stability and security of your workloads.
 		`)
 	case "Networking":
 		return fmt.Sprintf(`
