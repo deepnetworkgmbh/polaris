@@ -17,6 +17,7 @@ package dashboard
 import (
 	"bytes"
 	"encoding/json"
+	"github.com/fairwindsops/polaris/pkg/scanner"
 	"html/template"
 	"net/http"
 	"net/url"
@@ -156,6 +157,7 @@ func getConfigForQuery(base config.Configuration, query url.Values) config.Confi
 // GetRouter returns a mux router serving all routes necessary for the dashboard
 func GetRouter(c config.Configuration, auditPath string, port int, basePath string, auditData *validator.AuditData) *mux.Router {
 	router := mux.NewRouter().PathPrefix(basePath).Subrouter()
+	kubescanner := scanner.NewScanner(c.Images.ScannerUrl)
 	fileServer := http.FileServer(GetAssetBox())
 
 	router.PathPrefix("/static/").Handler(http.StripPrefix(path.Join(basePath, "/static/"), fileServer))
@@ -201,6 +203,25 @@ func GetRouter(c config.Configuration, auditPath string, port int, basePath stri
 		category := vars["category"]
 		category = strings.Replace(category, ".md", "", -1)
 		DetailsHandler(w, r, category, basePath)
+	})
+
+	router.HandleFunc("/image/{imageTag:.*}", func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		imageTag := vars["imageTag"]
+
+		decodedValue, err := url.QueryUnescape(imageTag)
+		if err != nil {
+			logrus.Error(err, "Failed to unescape", imageTag)
+			return
+		}
+
+		scanResult, err := kubescanner.Get(decodedValue)
+		if err != nil {
+			logrus.Error(err, "Failed to get image scan details", imageTag)
+			return
+		}
+
+		JSONHandler(w, r, &scanResult)
 	})
 
 	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
@@ -259,7 +280,7 @@ func MainHandler(w http.ResponseWriter, r *http.Request, c config.Configuration,
 }
 
 // JSONHandler gets template data and renders json with it.
-func JSONHandler(w http.ResponseWriter, r *http.Request, auditData *validator.AuditData) {
+func JSONHandler(w http.ResponseWriter, r *http.Request, auditData interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(auditData)
