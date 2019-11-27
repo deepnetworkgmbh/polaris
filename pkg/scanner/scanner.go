@@ -12,7 +12,6 @@ import (
 
 // Scanner base struct
 type Scanner struct {
-	Results    map[string]ImageScanResult
 	ScannerURL string
 }
 

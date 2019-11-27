@@ -65,8 +65,9 @@
               </div>
             </div>
           </div>
-          <div class="name"><span class="caret-expander"></span>{{ $category }}<span class="category-score">Score: <strong>{{ $summary.GetScore }}%</strong></span></div>
-            <div class="result-messages expandable-content">
+          <div class="name"><span class="caret-expander"></span>{{ $category }}<span class="category-score">Score: <strong>{{ $summary.GetScore }}%</strong></span>
+          </div>
+          <div class="result-messages expandable-content">
             <p class="category-info">{{ getCategoryInfo $category }} Refer to the <a href="details/{{ getCategoryLink $category }}">Polaris documentation about {{ $category }}</a> for more information.</p>
           </div>
         </div>

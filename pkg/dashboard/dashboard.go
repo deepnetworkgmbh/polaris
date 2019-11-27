@@ -22,6 +22,7 @@ import (
 	"net/http"
 	"net/url"
 	"path"
+	"sort"
 	"strings"
 
 	"github.com/fairwindsops/polaris/pkg/config"
@@ -48,6 +49,8 @@ const (
 	FooterTemplateName = "footer.gohtml"
 	// CheckDetailsTemplateName is a page for rendering details about a given check
 	CheckDetailsTemplateName = "check-details.gohtml"
+	// ImageScanDetailsTemplateName is a page for rendering a single image scan details
+	ImageScanDetailsTemplateName = "image-scan-details.gohtml"
 )
 
 var (
@@ -78,14 +81,6 @@ func GetMarkdownBox() *packr.Box {
 		markdownBox = packr.New("Markdown", "../../docs/check-documentation")
 	}
 	return markdownBox
-}
-
-// templateData is passed to the dashboard HTML template
-type templateData struct {
-	BasePath  string
-	Config    config.Configuration
-	AuditData validator.AuditData
-	JSON      template.JS
 }
 
 // GetBaseTemplate puts together the dashboard template. Individual pieces can be overridden before rendering.
@@ -157,7 +152,7 @@ func getConfigForQuery(base config.Configuration, query url.Values) config.Confi
 // GetRouter returns a mux router serving all routes necessary for the dashboard
 func GetRouter(c config.Configuration, auditPath string, port int, basePath string, auditData *validator.AuditData) *mux.Router {
 	router := mux.NewRouter().PathPrefix(basePath).Subrouter()
-	kubescanner := scanner.NewScanner(c.Images.ScannerUrl)
+	kubeScanner := scanner.NewScanner(c.Images.ScannerUrl)
 	fileServer := http.FileServer(GetAssetBox())
 
 	router.PathPrefix("/static/").Handler(http.StripPrefix(path.Join(basePath, "/static/"), fileServer))
@@ -215,13 +210,13 @@ func GetRouter(c config.Configuration, auditPath string, port int, basePath stri
 			return
 		}
 
-		scanResult, err := kubescanner.Get(decodedValue)
+		scanResult, err := kubeScanner.Get(decodedValue)
 		if err != nil {
 			logrus.Error(err, "Failed to get image scan details", imageTag)
 			return
 		}
 
-		JSONHandler(w, r, &scanResult)
+		imageScanDetailsHandler(w, r, c, basePath, &scanResult)
 	})
 
 	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
@@ -253,6 +248,77 @@ func GetRouter(c config.Configuration, auditPath string, port int, basePath stri
 
 	})
 	return router
+}
+
+func imageScanDetailsHandler(w http.ResponseWriter, r *http.Request, c config.Configuration, basePath string, scan *scanner.ImageScanResult) {
+	templateFileNames := []string{
+		HeadTemplateName,
+		NavbarTemplateName,
+		ImageScanDetailsTemplateName,
+		FooterTemplateName,
+	}
+	tmpl := template.New("image-scan-details")
+	tmpl, err := parseTemplateFiles(tmpl, templateFileNames)
+	if err != nil {
+		logrus.Printf("Error getting template data %v", err)
+		http.Error(w, "Error getting template data", 500)
+		return
+	}
+
+	data := scanTemplateData{
+		BasePath:   basePath,
+		Config:     c,
+		ImageTag:   scan.Image,
+		ScanResult: scan.ScanResult,
+		Description:scan.Description,
+		UsedIn: []imageUsage{},
+		ScanTargets: []imageScanTarget{},
+	}
+
+	for _, target := range scan.Targets{
+		targetModel := imageScanTarget{
+			Name:target.Target,
+			VulnerabilitiesGroups: []vulnerabilitiesGroup{},
+		}
+
+		cveDict := make(map[string][]cveDetails)
+
+		for _, cve := range target.Vulnerabilities {
+			cveDict[cve.Severity] = append(cveDict[cve.Severity], cveDetails{
+				Id:               cve.CVE,
+				PackageName:      cve.Package,
+				InstalledVersion: cve.InstalledVersion,
+				FixedVersion:     cve.FixedVersion,
+				Title:            cve.Title,
+				Description:      cve.Description,
+				References:       cve.References,
+			})
+		}
+
+		keys := make([]string, 0, len(cveDict))
+		for k := range cveDict {
+			keys = append(keys, k)
+		}
+		sort.Sort(bySeverity(keys))
+
+		for _, k := range keys {
+			targetModel.VulnerabilitiesGroups = append(targetModel.VulnerabilitiesGroups, vulnerabilitiesGroup{
+				Severity:k,
+				Count: len(cveDict[k]),
+				CVEs:cveDict[k],
+			})
+		}
+
+		data.ScanTargets = append(data.ScanTargets, targetModel)
+	}
+
+	buf := &bytes.Buffer{}
+	err = tmpl.Execute(buf, data)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	buf.WriteTo(w)
 }
 
 // MainHandler gets template data and renders the dashboard with it.
